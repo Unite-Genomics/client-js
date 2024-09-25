@@ -200,7 +200,7 @@ export async function authorize(
         redirectUri = env.relative(redirectUri);
     }
 
-    const serverUrl = String(audienceUrl || iss || fhirServiceUrl || "");
+    const serverUrl = String(iss || fhirServiceUrl || "");
 
     // Validate input
     if (!serverUrl) {
@@ -317,7 +317,7 @@ export async function authorize(
         "client_id="    + encodeURIComponent(clientId || ""),
         "scope="        + encodeURIComponent(scope),
         "redirect_uri=" + encodeURIComponent(redirectUri),
-        "aud="          + encodeURIComponent(serverUrl),
+        "aud="          + encodeURIComponent(audienceUrl || serverUrl),
         "state="        + encodeURIComponent(stateKey)
     ];
 
