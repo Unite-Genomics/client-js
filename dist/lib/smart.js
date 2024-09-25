@@ -136,7 +136,8 @@ async function authorize(env, params = {}) {
     width,
     height,
     pkceMode,
-    clientPublicKeySetUrl
+    clientPublicKeySetUrl,
+    audienceUrl
   } = params;
   let {
     iss,
@@ -251,7 +252,7 @@ async function authorize(env, params = {}) {
     return await env.redirect(redirectUrl);
   }
   // build the redirect uri
-  const redirectParams = ["response_type=code", "client_id=" + encodeURIComponent(clientId || ""), "scope=" + encodeURIComponent(scope), "redirect_uri=" + encodeURIComponent(redirectUri), "aud=" + encodeURIComponent(serverUrl), "state=" + encodeURIComponent(stateKey)];
+  const redirectParams = ["response_type=code", "client_id=" + encodeURIComponent(clientId || ""), "scope=" + encodeURIComponent(scope), "redirect_uri=" + encodeURIComponent(redirectUri), "aud=" + encodeURIComponent(audienceUrl || serverUrl), "state=" + encodeURIComponent(stateKey)];
   // also pass this in case of EHR launch
   if (launch) {
     redirectParams.push("launch=" + encodeURIComponent(launch));
@@ -550,7 +551,6 @@ async function buildTokenRequest(env, {
       jti: env.base64urlencode(env.security.randomBytes(32)),
       exp: (0, lib_1.getTimeInFuture)(120) // two minutes in the future
     };
-
     const clientAssertion = await env.security.signCompactJws(privateKey.alg, pk, jwtHeaders, jwtClaims);
     requestOptions.body += `&client_assertion_type=${encodeURIComponent("urn:ietf:params:oauth:client-assertion-type:jwt-bearer")}`;
     requestOptions.body += `&client_assertion=${encodeURIComponent(clientAssertion)}`;
@@ -563,7 +563,7 @@ async function buildTokenRequest(env, {
   }
   if (codeVerifier) {
     debug("Found state.codeVerifier, adding to the POST body");
-    // Note that the codeVerifier is ALREADY encoded properly  
+    // Note that the codeVerifier is ALREADY encoded properly
     requestOptions.body += "&code_verifier=" + codeVerifier;
   }
   return requestOptions;
