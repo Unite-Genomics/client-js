@@ -163,7 +163,8 @@ export async function authorize(
         width,
         height,
         pkceMode,
-        clientPublicKeySetUrl
+        clientPublicKeySetUrl,
+        audienceUrl
     } = params;
 
     let {
@@ -199,7 +200,7 @@ export async function authorize(
         redirectUri = env.relative(redirectUri);
     }
 
-    const serverUrl = String(iss || fhirServiceUrl || "");
+    const serverUrl = String(audienceUrl || iss || fhirServiceUrl || "");
 
     // Validate input
     if (!serverUrl) {
@@ -223,7 +224,7 @@ export async function authorize(
         const inPopUp = isInPopUp();
 
         if ((inFrame || inPopUp) && completeInTarget !== true && completeInTarget !== false) {
-            
+
             // completeInTarget will default to true if authorize is called from
             // within an iframe. This is to avoid issues when the entire app
             // happens to be rendered in an iframe (including in some EHRs),
@@ -332,7 +333,7 @@ export async function authorize(
         redirectParams.push("code_challenge=" + state.codeChallenge);// note that the challenge is ALREADY encoded properly
         redirectParams.push("code_challenge_method=S256");
     }
-  
+
     redirectUrl = state.authorizeUri + "?" + redirectParams.join("&");
 
     if (noRedirect) {
@@ -618,7 +619,7 @@ export async function buildTokenRequest(
          * The `code` URL parameter received from the auth redirect
          */
         code: string,
-        
+
         /**
          * The app state
          */
@@ -671,7 +672,7 @@ export async function buildTokenRequest(
             requestOptions.headers.authorization
         );
     }
-    
+
     // Asymmetric auth
     else if (privateKey) {
 
@@ -692,13 +693,13 @@ export async function buildTokenRequest(
             jti: env.base64urlencode(env.security.randomBytes(32)),
             exp: getTimeInFuture(120) // two minutes in the future
         };
-        
+
         const clientAssertion = await env.security.signCompactJws(privateKey.alg, pk, jwtHeaders, jwtClaims);
         requestOptions.body += `&client_assertion_type=${encodeURIComponent("urn:ietf:params:oauth:client-assertion-type:jwt-bearer")}`;
         requestOptions.body += `&client_assertion=${encodeURIComponent(clientAssertion)}`;
         debug("Using state.clientPrivateJwk to add a client_assertion to the POST body")
     }
-    
+
     // Public client
     else {
         debug("Public client detected; adding state.clientId to the POST body");
@@ -707,10 +708,10 @@ export async function buildTokenRequest(
 
     if (codeVerifier) {
       debug("Found state.codeVerifier, adding to the POST body")
-      // Note that the codeVerifier is ALREADY encoded properly  
+      // Note that the codeVerifier is ALREADY encoded properly
       requestOptions.body += "&code_verifier=" + codeVerifier;
     }
-  
+
     return requestOptions as RequestInit;
 }
 
