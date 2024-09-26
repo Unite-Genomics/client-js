@@ -126,22 +126,22 @@ async function authorize(env, params = {}) {
   // ------------------------------------------------------------------------
   // Obtain input
   const {
-    redirect_uri,
     clientSecret,
     fakeTokenResponse,
-    patientId,
     encounterId,
-    client_id,
     target,
     width,
     height,
     pkceMode,
     clientPublicKeySetUrl,
-    audienceUrl
+    // Two deprecated values to use as fall-back values later
+    redirect_uri,
+    client_id
   } = params;
   let {
     iss,
     launch,
+    patientId,
     fhirServiceUrl,
     redirectUri,
     noRedirect,
@@ -151,10 +151,13 @@ async function authorize(env, params = {}) {
     clientPrivateJwk
   } = params;
   const storage = env.getStorage();
-  // For these three an url param takes precedence over inline option
+  // For these, a url param takes precedence over inline option
   iss = url.searchParams.get("iss") || iss;
   fhirServiceUrl = url.searchParams.get("fhirServiceUrl") || fhirServiceUrl;
   launch = url.searchParams.get("launch") || launch;
+  patientId = url.searchParams.get("patientId") || patientId;
+  clientId = url.searchParams.get("clientId") || clientId;
+  // If there's still no clientId or redirectUri, check deprecated params 
   if (!clientId) {
     clientId = client_id;
   }
@@ -252,7 +255,7 @@ async function authorize(env, params = {}) {
     return await env.redirect(redirectUrl);
   }
   // build the redirect uri
-  const redirectParams = ["response_type=code", "client_id=" + encodeURIComponent(clientId || ""), "scope=" + encodeURIComponent(scope), "redirect_uri=" + encodeURIComponent(redirectUri), "aud=" + encodeURIComponent(audienceUrl || serverUrl), "state=" + encodeURIComponent(stateKey)];
+  const redirectParams = ["response_type=code", "client_id=" + encodeURIComponent(clientId || ""), "scope=" + encodeURIComponent(scope), "redirect_uri=" + encodeURIComponent(redirectUri), "aud=" + encodeURIComponent(serverUrl), "state=" + encodeURIComponent(stateKey)];
   // also pass this in case of EHR launch
   if (launch) {
     redirectParams.push("launch=" + encodeURIComponent(launch));
@@ -308,7 +311,7 @@ function shouldIncludeChallenge(S256supported, pkceMode) {
   }
   if (pkceMode === "required") {
     if (!S256supported) {
-      throw new Error("Required PKCE code challenge method (`S256`) was not found.");
+      throw new Error("Required PKCE code challenge method (`S256`) was not found in the server's codeChallengeMethods declaration.");
     }
     return true;
   }
@@ -563,7 +566,7 @@ async function buildTokenRequest(env, {
   }
   if (codeVerifier) {
     debug("Found state.codeVerifier, adding to the POST body");
-    // Note that the codeVerifier is ALREADY encoded properly
+    // Note that the codeVerifier is ALREADY encoded properly  
     requestOptions.body += "&code_verifier=" + codeVerifier;
   }
   return requestOptions;
