@@ -3593,6 +3593,7 @@ function _authorize() {
       height,
       pkceMode,
       clientPublicKeySetUrl,
+      audienceUrl,
       redirect_uri,
       client_id,
       iss,
@@ -3659,7 +3660,7 @@ function _authorize() {
         case 11:
           // ------------------------------------------------------------------------
           // Obtain input
-          clientSecret = params.clientSecret, fakeTokenResponse = params.fakeTokenResponse, encounterId = params.encounterId, target = params.target, width = params.width, height = params.height, pkceMode = params.pkceMode, clientPublicKeySetUrl = params.clientPublicKeySetUrl, redirect_uri = params.redirect_uri, client_id = params.client_id;
+          clientSecret = params.clientSecret, fakeTokenResponse = params.fakeTokenResponse, encounterId = params.encounterId, target = params.target, width = params.width, height = params.height, pkceMode = params.pkceMode, clientPublicKeySetUrl = params.clientPublicKeySetUrl, audienceUrl = params.audienceUrl, redirect_uri = params.redirect_uri, client_id = params.client_id;
           iss = params.iss, launch = params.launch, patientId = params.patientId, fhirServiceUrl = params.fhirServiceUrl, redirectUri = params.redirectUri, noRedirect = params.noRedirect, _params$scope = params.scope, scope = _params$scope === void 0 ? "" : _params$scope, clientId = params.clientId, completeInTarget = params.completeInTarget, clientPrivateJwk = params.clientPrivateJwk;
           storage = env.getStorage(); // For these, a url param takes precedence over inline option
           iss = url.searchParams.get("iss") || iss;
@@ -3667,7 +3668,7 @@ function _authorize() {
           launch = url.searchParams.get("launch") || launch;
           patientId = url.searchParams.get("patientId") || patientId;
           clientId = url.searchParams.get("clientId") || clientId;
-          // If there's still no clientId or redirectUri, check deprecated params 
+          // If there's still no clientId or redirectUri, check deprecated params
           if (!clientId) {
             clientId = client_id;
           }
@@ -3798,7 +3799,7 @@ function _authorize() {
           return _context.abrupt("return", _context.sent);
         case 64:
           // build the redirect uri
-          redirectParams = ["response_type=code", "client_id=" + encodeURIComponent(clientId || ""), "scope=" + encodeURIComponent(scope), "redirect_uri=" + encodeURIComponent(redirectUri), "aud=" + encodeURIComponent(serverUrl), "state=" + encodeURIComponent(stateKey)]; // also pass this in case of EHR launch
+          redirectParams = ["response_type=code", "client_id=" + encodeURIComponent(clientId || ""), "scope=" + encodeURIComponent(scope), "redirect_uri=" + encodeURIComponent(redirectUri), "aud=" + encodeURIComponent(audienceUrl || serverUrl), "state=" + encodeURIComponent(stateKey)]; // also pass this in case of EHR launch
           if (launch) {
             redirectParams.push("launch=" + encodeURIComponent(launch));
           }
@@ -4208,7 +4209,7 @@ function _buildTokenRequest() {
         case 32:
           if (codeVerifier) {
             debug("Found state.codeVerifier, adding to the POST body");
-            // Note that the codeVerifier is ALREADY encoded properly  
+            // Note that the codeVerifier is ALREADY encoded properly
             requestOptions.body += "&code_verifier=" + codeVerifier;
           }
           return _context3.abrupt("return", requestOptions);

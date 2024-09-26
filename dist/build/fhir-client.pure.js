@@ -2027,6 +2027,7 @@ async function authorize(env, params = {}) {
     height,
     pkceMode,
     clientPublicKeySetUrl,
+    audienceUrl,
     // Two deprecated values to use as fall-back values later
     redirect_uri,
     client_id
@@ -2050,7 +2051,7 @@ async function authorize(env, params = {}) {
   launch = url.searchParams.get("launch") || launch;
   patientId = url.searchParams.get("patientId") || patientId;
   clientId = url.searchParams.get("clientId") || clientId;
-  // If there's still no clientId or redirectUri, check deprecated params 
+  // If there's still no clientId or redirectUri, check deprecated params
   if (!clientId) {
     clientId = client_id;
   }
@@ -2148,7 +2149,7 @@ async function authorize(env, params = {}) {
     return await env.redirect(redirectUrl);
   }
   // build the redirect uri
-  const redirectParams = ["response_type=code", "client_id=" + encodeURIComponent(clientId || ""), "scope=" + encodeURIComponent(scope), "redirect_uri=" + encodeURIComponent(redirectUri), "aud=" + encodeURIComponent(serverUrl), "state=" + encodeURIComponent(stateKey)];
+  const redirectParams = ["response_type=code", "client_id=" + encodeURIComponent(clientId || ""), "scope=" + encodeURIComponent(scope), "redirect_uri=" + encodeURIComponent(redirectUri), "aud=" + encodeURIComponent(audienceUrl || serverUrl), "state=" + encodeURIComponent(stateKey)];
   // also pass this in case of EHR launch
   if (launch) {
     redirectParams.push("launch=" + encodeURIComponent(launch));
@@ -2460,7 +2461,7 @@ async function buildTokenRequest(env, {
   }
   if (codeVerifier) {
     debug("Found state.codeVerifier, adding to the POST body");
-    // Note that the codeVerifier is ALREADY encoded properly  
+    // Note that the codeVerifier is ALREADY encoded properly
     requestOptions.body += "&code_verifier=" + codeVerifier;
   }
   return requestOptions;
