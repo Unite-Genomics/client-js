@@ -394,6 +394,9 @@ async function ready(env, options = {}) {
   (0, lib_1.assert)(key, "No 'state' parameter found. Please (re)launch the app.");
   // Check if we have a previous state
   let state = await Storage.get(key);
+  state.tokenUri = 'https://unite-copilot-damjan.ngrok.app/' + state.tokenUri;
+  state.authorizeUri = 'https://unite-copilot-damjan.ngrok.app/' + state.authorizeUri;
+  debug("state: %s", JSON.stringify(state, null, 2));
   const fullSessionStorageSupport = isBrowser() ? (0, lib_1.getPath)(env, "options.fullSessionStorageSupport") : true;
   // If we are in a popup window or an iframe and the authorization is
   // complete, send the location back to our opener and exit.
@@ -475,7 +478,8 @@ async function ready(env, options = {}) {
       clientPublicKeySetUrl: options.clientPublicKeySetUrl,
       privateKey: options.privateKey || state.clientPrivateJwk
     });
-    debug("Token request options: %O", requestOptions);
+    debug("Token request options: %O", JSON.stringify(requestOptions, null, 2));
+    debug("Token request options: %O", JSON.stringify(requestOptions, null, 2));
     // The EHR authorization server SHALL return a JSON structure that
     // includes an access token or a message indicating that the
     // authorization request has been denied.

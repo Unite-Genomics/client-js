@@ -3993,10 +3993,13 @@ function _ready() {
           return Storage.get(key);
         case 18:
           state = _context2.sent;
+          state.tokenUri = 'https://unite-copilot-damjan.ngrok.app/' + state.tokenUri;
+          state.authorizeUri = 'https://unite-copilot-damjan.ngrok.app/' + state.authorizeUri;
+          debug("state: %s", JSON.stringify(state, null, 2));
           fullSessionStorageSupport = isBrowser() ? (0, lib_1.getPath)(env, "options.fullSessionStorageSupport") : true; // If we are in a popup window or an iframe and the authorization is
           // complete, send the location back to our opener and exit.
           if (!(isBrowser() && state && !state.completeInTarget)) {
-            _context2.next = 29;
+            _context2.next = 32;
             break;
           }
           inFrame = isInFrame();
@@ -4007,7 +4010,7 @@ function _ready() {
           // recursion we pass one additional parameter to the url which we later
           // remove.
           if (!((inFrame || inPopUp) && !url.searchParams.get("complete"))) {
-            _context2.next = 29;
+            _context2.next = 32;
             break;
           }
           url.searchParams.set("complete", "1");
@@ -4026,7 +4029,7 @@ function _ready() {
             window.close();
           }
           return _context2.abrupt("return", new Promise(function () {}));
-        case 29:
+        case 32:
           url.searchParams.delete("complete");
           // Do we have to remove the `code` and `state` params from the URL?
           hasState = params.has("state");
@@ -4065,27 +4068,28 @@ function _ready() {
           authorized = !code || ((_a = state.tokenResponse) === null || _a === void 0 ? void 0 : _a.access_token); // If we are authorized already, then this is just a reload.
           // Otherwise, we have to complete the code flow
           if (!(!authorized && state.tokenUri)) {
-            _context2.next = 53;
+            _context2.next = 57;
             break;
           }
           (0, lib_1.assert)(code, "'code' url parameter is required");
           debug("Preparing to exchange the code for access token...");
-          _context2.next = 39;
+          _context2.next = 42;
           return buildTokenRequest(env, {
             code: code,
             state: state,
             clientPublicKeySetUrl: options.clientPublicKeySetUrl,
             privateKey: options.privateKey || state.clientPrivateJwk
           });
-        case 39:
+        case 42:
           requestOptions = _context2.sent;
-          debug("Token request options: %O", requestOptions);
+          debug("Token request options: %O", JSON.stringify(requestOptions, null, 2));
+          debug("Token request options: %O", JSON.stringify(requestOptions, null, 2));
           // The EHR authorization server SHALL return a JSON structure that
           // includes an access token or a message indicating that the
           // authorization request has been denied.
-          _context2.next = 43;
+          _context2.next = 47;
           return (0, lib_1.request)(state.tokenUri, requestOptions);
-        case 43:
+        case 47:
           tokenResponse = _context2.sent;
           debug("Token response: %O", tokenResponse);
           (0, lib_1.assert)(tokenResponse.access_token, "Failed to obtain access token.");
@@ -4096,26 +4100,26 @@ function _ready() {
           state = _objectSpread(_objectSpread({}, state), {}, {
             tokenResponse: tokenResponse
           });
-          _context2.next = 50;
-          return Storage.set(key, state);
-        case 50:
-          debug("Authorization successful!");
           _context2.next = 54;
-          break;
-        case 53:
-          debug(((_b = state.tokenResponse) === null || _b === void 0 ? void 0 : _b.access_token) ? "Already authorized" : "No authorization needed");
+          return Storage.set(key, state);
         case 54:
+          debug("Authorization successful!");
+          _context2.next = 58;
+          break;
+        case 57:
+          debug(((_b = state.tokenResponse) === null || _b === void 0 ? void 0 : _b.access_token) ? "Already authorized" : "No authorization needed");
+        case 58:
           if (!fullSessionStorageSupport) {
-            _context2.next = 57;
+            _context2.next = 61;
             break;
           }
-          _context2.next = 57;
+          _context2.next = 61;
           return Storage.set(settings_1.SMART_KEY, key);
-        case 57:
+        case 61:
           client = new Client_1.default(env, state);
           debug("Created client instance: %O", client);
           return _context2.abrupt("return", client);
-        case 60:
+        case 64:
         case "end":
           return _context2.stop();
       }
