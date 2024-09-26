@@ -3,7 +3,7 @@ SMART on FHIR JavaScript Library
 ================================
 
 This is a JavaScript library for connecting SMART apps to FHIR servers.
-It works both in browsers (IE 10+) and on the server (Node 10+).
+It works both in browsers (IE 10+) and on the server (Node 18+).
 
 
 > This is the documentation for version 2+. If you want to migrate from older versions, please check out **[what's new in v2](http://docs.smarthealthit.org/client-js/v2.html)** and [migration instructions](migration).
@@ -126,7 +126,7 @@ FHIR.oauth2.ready()
     .catch(console.error);
 ```
 
-> NOTE: When the library is used as module it will not polyfill the global namespace and will not create a global `FHIR` object as it does when included as script. If you want to be able to use it globally, you can expert it yourself like so:
+> NOTE: When the library is used as module it will not polyfill the global namespace and will not create a global `FHIR` object as it does when included as script. If you want to be able to use it globally, you can export it yourself like so:
 
 ```ts
 import FHIR from "fhirclient";
