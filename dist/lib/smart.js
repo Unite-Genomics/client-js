@@ -126,21 +126,22 @@ async function authorize(env, params = {}) {
   // ------------------------------------------------------------------------
   // Obtain input
   const {
-    redirect_uri,
     clientSecret,
     fakeTokenResponse,
-    patientId,
     encounterId,
-    client_id,
     target,
     width,
     height,
     pkceMode,
-    clientPublicKeySetUrl
+    clientPublicKeySetUrl,
+    // Two deprecated values to use as fall-back values later
+    redirect_uri,
+    client_id
   } = params;
   let {
     iss,
     launch,
+    patientId,
     fhirServiceUrl,
     redirectUri,
     noRedirect,
@@ -150,10 +151,13 @@ async function authorize(env, params = {}) {
     clientPrivateJwk
   } = params;
   const storage = env.getStorage();
-  // For these three an url param takes precedence over inline option
+  // For these, a url param takes precedence over inline option
   iss = url.searchParams.get("iss") || iss;
   fhirServiceUrl = url.searchParams.get("fhirServiceUrl") || fhirServiceUrl;
   launch = url.searchParams.get("launch") || launch;
+  patientId = url.searchParams.get("patientId") || patientId;
+  clientId = url.searchParams.get("clientId") || clientId;
+  // If there's still no clientId or redirectUri, check deprecated params 
   if (!clientId) {
     clientId = client_id;
   }
@@ -307,7 +311,7 @@ function shouldIncludeChallenge(S256supported, pkceMode) {
   }
   if (pkceMode === "required") {
     if (!S256supported) {
-      throw new Error("Required PKCE code challenge method (`S256`) was not found.");
+      throw new Error("Required PKCE code challenge method (`S256`) was not found in the server's codeChallengeMethods declaration.");
     }
     return true;
   }
@@ -550,7 +554,6 @@ async function buildTokenRequest(env, {
       jti: env.base64urlencode(env.security.randomBytes(32)),
       exp: (0, lib_1.getTimeInFuture)(120) // two minutes in the future
     };
-
     const clientAssertion = await env.security.signCompactJws(privateKey.alg, pk, jwtHeaders, jwtClaims);
     requestOptions.body += `&client_assertion_type=${encodeURIComponent("urn:ietf:params:oauth:client-assertion-type:jwt-bearer")}`;
     requestOptions.body += `&client_assertion=${encodeURIComponent(clientAssertion)}`;
