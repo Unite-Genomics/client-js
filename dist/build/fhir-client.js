@@ -3593,6 +3593,7 @@ function _authorize() {
       height,
       pkceMode,
       clientPublicKeySetUrl,
+      audienceUrl,
       redirect_uri,
       client_id,
       iss,
@@ -3659,7 +3660,7 @@ function _authorize() {
         case 11:
           // ------------------------------------------------------------------------
           // Obtain input
-          clientSecret = params.clientSecret, fakeTokenResponse = params.fakeTokenResponse, encounterId = params.encounterId, target = params.target, width = params.width, height = params.height, pkceMode = params.pkceMode, clientPublicKeySetUrl = params.clientPublicKeySetUrl, redirect_uri = params.redirect_uri, client_id = params.client_id;
+          clientSecret = params.clientSecret, fakeTokenResponse = params.fakeTokenResponse, encounterId = params.encounterId, target = params.target, width = params.width, height = params.height, pkceMode = params.pkceMode, clientPublicKeySetUrl = params.clientPublicKeySetUrl, audienceUrl = params.audienceUrl, redirect_uri = params.redirect_uri, client_id = params.client_id;
           iss = params.iss, launch = params.launch, patientId = params.patientId, fhirServiceUrl = params.fhirServiceUrl, redirectUri = params.redirectUri, noRedirect = params.noRedirect, _params$scope = params.scope, scope = _params$scope === void 0 ? "" : _params$scope, clientId = params.clientId, completeInTarget = params.completeInTarget, clientPrivateJwk = params.clientPrivateJwk;
           storage = env.getStorage(); // For these, a url param takes precedence over inline option
           iss = url.searchParams.get("iss") || iss;
@@ -3667,7 +3668,7 @@ function _authorize() {
           launch = url.searchParams.get("launch") || launch;
           patientId = url.searchParams.get("patientId") || patientId;
           clientId = url.searchParams.get("clientId") || clientId;
-          // If there's still no clientId or redirectUri, check deprecated params 
+          // If there's still no clientId or redirectUri, check deprecated params
           if (!clientId) {
             clientId = client_id;
           }
@@ -3798,7 +3799,7 @@ function _authorize() {
           return _context.abrupt("return", _context.sent);
         case 64:
           // build the redirect uri
-          redirectParams = ["response_type=code", "client_id=" + encodeURIComponent(clientId || ""), "scope=" + encodeURIComponent(scope), "redirect_uri=" + encodeURIComponent(redirectUri), "aud=" + encodeURIComponent(serverUrl), "state=" + encodeURIComponent(stateKey)]; // also pass this in case of EHR launch
+          redirectParams = ["response_type=code", "client_id=" + encodeURIComponent(clientId || ""), "scope=" + encodeURIComponent(scope), "redirect_uri=" + encodeURIComponent(redirectUri), "aud=" + encodeURIComponent(audienceUrl || serverUrl), "state=" + encodeURIComponent(stateKey)]; // also pass this in case of EHR launch
           if (launch) {
             redirectParams.push("launch=" + encodeURIComponent(launch));
           }
@@ -4064,7 +4065,7 @@ function _ready() {
           authorized = !code || ((_a = state.tokenResponse) === null || _a === void 0 ? void 0 : _a.access_token); // If we are authorized already, then this is just a reload.
           // Otherwise, we have to complete the code flow
           if (!(!authorized && state.tokenUri)) {
-            _context2.next = 53;
+            _context2.next = 52;
             break;
           }
           (0, lib_1.assert)(code, "'code' url parameter is required");
@@ -4078,13 +4079,9 @@ function _ready() {
           });
         case 39:
           requestOptions = _context2.sent;
-          debug("Token request options: %O", requestOptions);
-          // The EHR authorization server SHALL return a JSON structure that
-          // includes an access token or a message indicating that the
-          // authorization request has been denied.
-          _context2.next = 43;
+          _context2.next = 42;
           return (0, lib_1.request)(state.tokenUri, requestOptions);
-        case 43:
+        case 42:
           tokenResponse = _context2.sent;
           debug("Token response: %O", tokenResponse);
           (0, lib_1.assert)(tokenResponse.access_token, "Failed to obtain access token.");
@@ -4095,26 +4092,26 @@ function _ready() {
           state = _objectSpread(_objectSpread({}, state), {}, {
             tokenResponse: tokenResponse
           });
-          _context2.next = 50;
+          _context2.next = 49;
           return Storage.set(key, state);
-        case 50:
+        case 49:
           debug("Authorization successful!");
-          _context2.next = 54;
+          _context2.next = 53;
           break;
-        case 53:
+        case 52:
           debug(((_b = state.tokenResponse) === null || _b === void 0 ? void 0 : _b.access_token) ? "Already authorized" : "No authorization needed");
-        case 54:
+        case 53:
           if (!fullSessionStorageSupport) {
-            _context2.next = 57;
+            _context2.next = 56;
             break;
           }
-          _context2.next = 57;
+          _context2.next = 56;
           return Storage.set(settings_1.SMART_KEY, key);
-        case 57:
+        case 56:
           client = new Client_1.default(env, state);
           debug("Created client instance: %O", client);
           return _context2.abrupt("return", client);
-        case 60:
+        case 59:
         case "end":
           return _context2.stop();
       }
@@ -4208,7 +4205,7 @@ function _buildTokenRequest() {
         case 32:
           if (codeVerifier) {
             debug("Found state.codeVerifier, adding to the POST body");
-            // Note that the codeVerifier is ALREADY encoded properly  
+            // Note that the codeVerifier is ALREADY encoded properly
             requestOptions.body += "&code_verifier=" + codeVerifier;
           }
           return _context3.abrupt("return", requestOptions);

@@ -158,7 +158,7 @@ declare namespace fhirclient {
          * ASCII string to Base64
          */
         atob(str: string): string;
-        
+
         /**
          * ASCII string or Uint8Array to Base64URL
          */
@@ -243,7 +243,7 @@ declare namespace fhirclient {
      * want to receive the raw response object. Any other option will be passed
      * to the underlying `fetch` call.
      */
-    type RequestFunction<R = any> = <O extends IncludeResponseHint = {}>(requestOptions?: O) => 
+    type RequestFunction<R = any> = <O extends IncludeResponseHint = {}>(requestOptions?: O) =>
         Promise<O["includeResponse"] extends true ? CombinedFetchResult<R> : R>;
 
     /**
@@ -266,8 +266,8 @@ declare namespace fhirclient {
     interface CombinedFetchResult<T = fhirclient.JsonObject | string> {
         body?: T
         response: Response
-    } 
-    
+    }
+
     /**
      * The return type of the lib.request function
      */
@@ -450,7 +450,7 @@ declare namespace fhirclient {
         codeChallenge?: string;
 
         /**
-          * PKCE code verification, formatted with base64url-encode (RFC 4648 § 5) 
+          * PKCE code verification, formatted with base64url-encode (RFC 4648 § 5)
           * without padding, which is NOT the same as regular base64 encoding.
           */
         codeVerifier?: string;
@@ -472,7 +472,7 @@ declare namespace fhirclient {
         iss?: string;
 
         /**
-         * Can be used to verify that the app is being launched against certain 
+         * Can be used to verify that the app is being launched against certain
          * servers. This is especially useful when working with multiple EHR
          * configurations. Can be a string (in which case it will be expected to
          * match the provided ISS exactly), a regular expression to test against
@@ -511,7 +511,7 @@ declare namespace fhirclient {
         redirect_uri?: string;
 
         /**
-         * 
+         *
          */
         noRedirect?: boolean;
 
@@ -569,7 +569,7 @@ declare namespace fhirclient {
          * key online, you can pass your JWKS URL here **Note: ONLY use this on the server**, as the
          * browsers are considered incapable of keeping a secret.
          */
-        clientPublicKeySetUrl?: string; 
+        clientPublicKeySetUrl?: string;
 
         /**
          * If you have registered a confidential client, you should pass your
@@ -633,6 +633,8 @@ declare namespace fhirclient {
          *    this setting
          */
         pkceMode?: PkceMode;
+
+        audienceUrl?:string;
     }
 
     interface ReadyOptions {
@@ -851,7 +853,7 @@ declare namespace fhirclient {
     type JsonPrimitive = string | number | boolean | null
     type JsonValue = JsonPrimitive|JsonArray|JsonObject
     type JsonArray = JsonValue[]
-    
+
     // JSON Patch - https://datatracker.ietf.org/doc/html/rfc6902
     interface JsonPatchAdd     { op: "add"    ; path: string; value: JsonValue; }
     interface JsonPatchReplace { op: "replace"; path: string; value: JsonValue; }

@@ -161,11 +161,13 @@ export async function authorize(
         height,
         pkceMode,
         clientPublicKeySetUrl,
+        audienceUrl,
+
         // Two deprecated values to use as fall-back values later
         redirect_uri,
         client_id,
     } = params;
-    
+
     let {
         iss,
         launch,
@@ -188,7 +190,7 @@ export async function authorize(
     patientId      = url.searchParams.get("patientId")      || patientId;
     clientId       = url.searchParams.get("clientId")       || clientId;
 
-    // If there's still no clientId or redirectUri, check deprecated params 
+    // If there's still no clientId or redirectUri, check deprecated params
     if (!clientId) {
         clientId = client_id;
     }
@@ -226,7 +228,7 @@ export async function authorize(
         const inPopUp = isInPopUp();
 
         if ((inFrame || inPopUp) && completeInTarget !== true && completeInTarget !== false) {
-            
+
             // completeInTarget will default to true if authorize is called from
             // within an iframe. This is to avoid issues when the entire app
             // happens to be rendered in an iframe (including in some EHRs),
@@ -319,7 +321,7 @@ export async function authorize(
         "client_id="    + encodeURIComponent(clientId || ""),
         "scope="        + encodeURIComponent(scope),
         "redirect_uri=" + encodeURIComponent(redirectUri),
-        "aud="          + encodeURIComponent(serverUrl),
+        "aud="          + encodeURIComponent(audienceUrl || serverUrl),
         "state="        + encodeURIComponent(stateKey)
     ];
 
@@ -335,7 +337,7 @@ export async function authorize(
         redirectParams.push("code_challenge=" + state.codeChallenge);// note that the challenge is ALREADY encoded properly
         redirectParams.push("code_challenge_method=S256");
     }
-  
+
     redirectUrl = state.authorizeUri + "?" + redirectParams.join("&");
 
     if (noRedirect) {
@@ -571,7 +573,6 @@ export async function ready(env: fhirclient.Adapter, options: fhirclient.ReadyOp
             clientPublicKeySetUrl: options.clientPublicKeySetUrl,
             privateKey: options.privateKey || state.clientPrivateJwk
         });
-        debug("Token request options: %O", requestOptions);
 
         // The EHR authorization server SHALL return a JSON structure that
         // includes an access token or a message indicating that the
@@ -621,7 +622,7 @@ export async function buildTokenRequest(
          * The `code` URL parameter received from the auth redirect
          */
         code: string,
-        
+
         /**
          * The app state
          */
@@ -674,7 +675,7 @@ export async function buildTokenRequest(
             requestOptions.headers.authorization
         );
     }
-    
+
     // Asymmetric auth
     else if (privateKey) {
 
@@ -695,13 +696,13 @@ export async function buildTokenRequest(
             jti: env.base64urlencode(env.security.randomBytes(32)),
             exp: getTimeInFuture(120) // two minutes in the future
         };
-        
+
         const clientAssertion = await env.security.signCompactJws(privateKey.alg, pk, jwtHeaders, jwtClaims);
         requestOptions.body += `&client_assertion_type=${encodeURIComponent("urn:ietf:params:oauth:client-assertion-type:jwt-bearer")}`;
         requestOptions.body += `&client_assertion=${encodeURIComponent(clientAssertion)}`;
         debug("Using state.clientPrivateJwk to add a client_assertion to the POST body")
     }
-    
+
     // Public client
     else {
         debug("Public client detected; adding state.clientId to the POST body");
@@ -710,10 +711,10 @@ export async function buildTokenRequest(
 
     if (codeVerifier) {
       debug("Found state.codeVerifier, adding to the POST body")
-      // Note that the codeVerifier is ALREADY encoded properly  
+      // Note that the codeVerifier is ALREADY encoded properly
       requestOptions.body += "&code_verifier=" + codeVerifier;
     }
-  
+
     return requestOptions as RequestInit;
 }
 
