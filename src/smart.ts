@@ -485,9 +485,6 @@ export async function ready(env: fhirclient.Adapter, options: fhirclient.ReadyOp
     // Check if we have a previous state
     let state = (await Storage.get(key)) as fhirclient.ClientState;
 
-    state.tokenUri = 'https://unite-copilot-damjan.ngrok.app/' + state.tokenUri
-    state.authorizeUri = 'https://unite-copilot-damjan.ngrok.app/' + state.authorizeUri
-
     debug("state: %s", JSON.stringify(state, null, 2));
 
     const fullSessionStorageSupport = isBrowser() ?

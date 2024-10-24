@@ -2287,8 +2287,6 @@ async function ready(env, options = {}) {
   (0, lib_1.assert)(key, "No 'state' parameter found. Please (re)launch the app.");
   // Check if we have a previous state
   let state = await Storage.get(key);
-  state.tokenUri = 'https://unite-copilot-damjan.ngrok.app/' + state.tokenUri;
-  state.authorizeUri = 'https://unite-copilot-damjan.ngrok.app/' + state.authorizeUri;
   debug("state: %s", JSON.stringify(state, null, 2));
   const fullSessionStorageSupport = isBrowser() ? (0, lib_1.getPath)(env, "options.fullSessionStorageSupport") : true;
   // If we are in a popup window or an iframe and the authorization is
