@@ -485,8 +485,6 @@ export async function ready(env: fhirclient.Adapter, options: fhirclient.ReadyOp
     // Check if we have a previous state
     let state = (await Storage.get(key)) as fhirclient.ClientState;
 
-    debug("state: %s", JSON.stringify(state, null, 2));
-
     const fullSessionStorageSupport = isBrowser() ?
         getPath(env, "options.fullSessionStorageSupport") :
         true;
@@ -575,9 +573,6 @@ export async function ready(env: fhirclient.Adapter, options: fhirclient.ReadyOp
             clientPublicKeySetUrl: options.clientPublicKeySetUrl,
             privateKey: options.privateKey || state.clientPrivateJwk
         });
-
-        debug("Token request options: %O", JSON.stringify(requestOptions, null, 2));
-        debug("Token request options: %O", JSON.stringify(requestOptions, null, 2));
 
         // The EHR authorization server SHALL return a JSON structure that
         // includes an access token or a message indicating that the
